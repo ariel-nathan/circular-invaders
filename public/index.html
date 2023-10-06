@@ -7,6 +7,8 @@
     <style>
       body {
         margin: 0;
+        padding: 0;
+        overflow: hidden;
       }
     </style>
   </head>
@@ -25,6 +27,7 @@
       <span id="score">0</span>
     </div>
     <canvas id="canvas"></canvas>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
       integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug=="
@@ -36,6 +39,6 @@
     <script src="./js/classes/Particle.js"></script>
     <script src="./js/classes/Projectile.js"></script>
     <script src="./js/eventListeners.js"></script>
-    <script src="./js/index.js"></script>
+    <script src="./js/frontend.js"></script>
   </body>
 </html>
