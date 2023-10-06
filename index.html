@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Single Player Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="m-0 p-0 absolute inset-0 bg-black">
+    <div class="fixed text-white text-lg font-semibold ml-4 mt-2 select-none">
+      <span>Score:</span>
+      <span id="score">0</span>
+    </div>
+    <div id="modal" class="fixed inset-0 flex items-center justify-center">
+      <div
+        class="bg-white max-w-md w-full flex flex-col items-center p-4 rounded-md"
+      >
+        <h1 id="modal-score" class="text-4xl font-bold select-none">0</h1>
+        <p class="text-gray-500 select-none">Points</p>
+        <button
+          id="start"
+          class="py-2 px-4 mt-4 rounded-md bg-black text-white font-semibold hover:bg-black/75 transition-colors ease-in-out"
+        >
+          Start
+        </button>
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
+      integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="index.js"></script>
+  </body>
+</html>
