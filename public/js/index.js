@@ -1,124 +1,25 @@
 const canvas = document.getElementById("canvas");
 const scoreEl = document.getElementById("score");
-const startGameBtn = document.getElementById("start");
-const modalEl = document.getElementById("modal");
-const modalScoreEl = document.getElementById("modal-score");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const ctx = canvas.getContext("2d");
 
-class Player {
-  constructor(x, y, radius, color) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.color = color;
-  }
-
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-  }
-}
-
-class Projectile {
-  constructor(x, y, radius, color, velocity) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.color = color;
-    this.velocity = velocity;
-  }
-
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-  }
-
-  update() {
-    this.draw();
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
-  }
-}
-
-class Enemy {
-  constructor(x, y, radius, color, velocity) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.color = color;
-    this.velocity = velocity;
-  }
-
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-  }
-
-  update() {
-    this.draw();
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
-  }
-}
-
-const friction = 0.97;
-class Particle {
-  constructor(x, y, radius, color, velocity) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.color = color;
-    this.velocity = velocity;
-    this.alpha = 1;
-  }
-
-  draw() {
-    ctx.save();
-    ctx.globalAlpha = this.alpha;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.restore();
-  }
-
-  update() {
-    this.draw();
-    this.velocity.x *= friction;
-    this.velocity.y *= friction;
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
-    this.alpha -= 0.01;
-  }
-}
-
 let player;
 let projectiles;
 let enemies;
 let particles;
+let animationId;
+let score = 0;
 
-function init() {
-  player = new Player(canvas.width / 2, canvas.height / 2, 20, "white");
-  projectiles = [];
-  enemies = [];
-  particles = [];
-  score = 0;
-
-  scoreEl.innerHTML = score;
-  modalScoreEl.innerHTML = score;
-}
+player = new Player(canvas.width / 2, canvas.height / 2, 20, "white");
+projectiles = [];
+enemies = [];
+particles = [];
 
 function spawnEnemies() {
+  // Stop flashing
   setInterval(() => {
     let x;
     let y;
@@ -144,12 +45,10 @@ function spawnEnemies() {
   }, 1000);
 }
 
-let animationId = undefined;
-let score = 0;
-
 function animate() {
   animationId = requestAnimationFrame(animate);
 
+  // Fill canvas with black
   ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -166,12 +65,14 @@ function animate() {
   projectiles.forEach((projectile) => {
     projectile.update();
 
+    // Remove projectiles from edges of screen
     if (
       projectile.x + projectile.radius < 0 ||
       projectile.x - projectile.radius > canvas.width ||
       projectile.y + projectile.radius < 0 ||
       projectile.y - projectile.radius > canvas.height
     ) {
+      // Stop flashing
       setTimeout(() => {
         projectiles.splice(projectiles.indexOf(projectile), 1);
       }, 0);
@@ -183,17 +84,17 @@ function animate() {
 
     const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
 
+    // End game
     if (dist - enemy.radius - player.radius < 1) {
       cancelAnimationFrame(animationId);
-      modalEl.style.display = "flex";
-      modalScoreEl.innerHTML = score;
-      startGameBtn.innerHTML = "Restart";
     }
 
     projectiles.forEach((projectile) => {
       const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
 
+      // When projectiles touch enemy
       if (dist - enemy.radius - projectile.radius < 1) {
+        // Create explosions
         for (let i = 0; i < enemy.radius * 2; i++) {
           particles.push(
             new Particle(
@@ -209,6 +110,7 @@ function animate() {
           );
         }
 
+        // Enemy shrinking and removal
         if (enemy.radius - 10 > 5) {
           score += 5;
           scoreEl.innerHTML = score;
@@ -217,6 +119,7 @@ function animate() {
             radius: enemy.radius - 10,
           });
 
+          // Stop flashing
           setTimeout(() => {
             projectiles.splice(projectiles.indexOf(projectile), 1);
           }, 0);
@@ -224,6 +127,7 @@ function animate() {
           score += 10;
           scoreEl.innerHTML = score;
 
+          // Stop flashing
           setTimeout(() => {
             enemies.splice(enemies.indexOf(enemy), 1);
             projectiles.splice(projectiles.indexOf(projectile), 1);
@@ -234,25 +138,5 @@ function animate() {
   });
 }
 
-addEventListener("click", (event) => {
-  const angle = Math.atan2(
-    event.clientY - canvas.height / 2,
-    event.clientX - canvas.width / 2
-  );
-
-  const velocity = {
-    x: Math.cos(angle) * 5,
-    y: Math.sin(angle) * 5,
-  };
-
-  projectiles.push(
-    new Projectile(canvas.width / 2, canvas.height / 2, 5, "white", velocity)
-  );
-});
-
-startGameBtn.addEventListener("click", () => {
-  init();
-  animate();
-  spawnEnemies();
-  modalEl.style.display = "none";
-});
+animate();
+spawnEnemies();
